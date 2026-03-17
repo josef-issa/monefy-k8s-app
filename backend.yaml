@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monefy-backend
+  labels:
+    app: monefy-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: monefy-backend
+  template:
+    metadata:
+      labels:
+        app: monefy-backend
+    spec:
+      containers:
+        - name: backend
+          image: monefy-backend:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3001
+          envFrom:
+            - configMapRef:
+                name: monefy-config
+            - secretRef:
+                name: monefy-secret
+          volumeMounts:
+            - name: db-storage
+              mountPath: /data
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+      volumes:
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: monefy-db-pvc
